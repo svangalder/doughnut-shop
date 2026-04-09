@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doughnut Shop - Place Value Adventure</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+  }
+
+  /* ── Shop Scene ── */
+  .shop-scene {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+  }
+
+  .shop-sign {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: #d4438a;
+    text-shadow: 2px 2px 0 #fff;
+    margin-bottom: 10px;
+    animation: signBounce 2s ease-in-out infinite;
+  }
+  @keyframes signBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* ── Order Ticket ── */
+  .order-ticket {
+    background: #fffbe6;
+    border: 3px dashed #e8a030;
+    border-radius: 16px;
+    padding: 14px 24px;
+    text-align: center;
+    max-width: 340px;
+    margin: 0 auto 18px;
+    box-shadow: 3px 3px 0 #e8a03055;
+    position: relative;
+  }
+  .order-ticket h2 {
+    font-family: 'Fredoka One', cursive;
+    color: #c0392b;
+    font-size: 1.3rem;
+  }
+  .order-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.6rem;
+    color: #e74c3c;
+    line-height: 1.1;
+  }
+  .order-ticket .subtitle {
+    font-size: 0.95rem;
+    color: #888;
+  }
+
+  /* ── Counter / Tray Area ── */
+  .counter {
+    background: #8B5E3C;
+    border-radius: 18px 18px 0 0;
+    padding: 20px 20px 14px;
+    min-height: 180px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .counter-label {
+    font-family: 'Fredoka One', cursive;
+    color: #ffe0b2;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .tray {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    min-height: 80px;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 12px;
+  }
+
+  /* ── Doughnuts ── */
+  .doughnut {
+    width: 52px; height: 52px;
+    position: relative;
+    animation: doughnutPop 0.35s cubic-bezier(.34,1.56,.64,1) both;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.18));
+  }
+  @keyframes doughnutPop {
+    0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .doughnut svg { width: 100%; height: 100%; }
+
+  .doughnut.wrong {
+    animation: doughnutShake 0.5s ease-in-out;
+  }
+  @keyframes doughnutShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-6px) rotate(-4deg); }
+    40% { transform: translateX(6px) rotate(4deg); }
+    60% { transform: translateX(-4px) rotate(-2deg); }
+    80% { transform: translateX(4px) rotate(2deg); }
+  }
+
+  .doughnut.fly-away {
+    animation: flyAway 0.6s ease-in forwards;
+  }
+  @keyframes flyAway {
+    to { transform: translateY(-120px) scale(0); opacity: 0; }
+  }
+
+  /* ── Character ── */
+  .character-area {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 14px;
+    min-height: 170px;
+    position: relative;
+  }
+
+  .character {
+    width: 140px;
+    position: relative;
+  }
+  .character img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+    transition: transform 0.3s;
+  }
+  .character.arms-up img {
+    transform: scale(1.08);
+  }
+  .character.sad img {
+    transform: rotate(-5deg) translateY(4px);
+  }
+  .character.surprised img {
+    transform: scale(1.05) translateY(-4px);
+  }
+  .character.scratch img {
+    transform: rotate(5deg);
+  }
+
+  .speech-bubble {
+    background: #fff;
+    border: 3px solid #d4438a;
+    border-radius: 20px;
+    padding: 12px 18px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #333;
+    max-width: 320px;
+    position: relative;
+    box-shadow: 3px 3px 0 #d4438a33;
+    line-height: 1.4;
+    min-height: 50px;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    bottom: 24px;
+    border: 10px solid transparent;
+    border-right-color: #d4438a;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    bottom: 26px;
+    border: 8px solid transparent;
+    border-right-color: #fff;
+  }
+  .speech-bubble .emphasis {
+    color: #e74c3c;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 36px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-block;
+    margin: 6px;
+  }
+  .btn:hover { transform: scale(1.06); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-next {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #1a5c3a;
+    box-shadow: 0 4px 0 #28a35c;
+  }
+  .btn-replay {
+    background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+    color: #5b2c8e;
+    box-shadow: 0 4px 0 #8b6aae;
+  }
+  .btn-help {
+    background: linear-gradient(135deg, #f6d365, #fda085);
+    color: #7a4a1a;
+    box-shadow: 0 4px 0 #d48a3a;
+  }
+
+  .btn-row {
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  /* ── Ten Frame ── */
+  .ten-frame-section {
+    text-align: center;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 2px dashed rgba(255,255,255,0.2);
+  }
+  .ten-frame-label {
+    font-family: 'Fredoka One', cursive;
+    color: #ffe0b2;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .ten-frame {
+    display: inline-grid;
+    grid-template-columns: repeat(5, 52px);
+    grid-template-rows: repeat(2, 52px);
+    gap: 4px;
+    background: rgba(255,255,255,0.15);
+    border: 3px solid #ffe0b2;
+    border-radius: 12px;
+    padding: 8px;
+  }
+  .ten-frame-cell {
+    width: 48px; height: 48px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+  .ten-frame-cell.filled {
+    border-color: #43e97b;
+    background: #e8fdf0;
+  }
+  .ten-frame-cell .mini-doughnut {
+    width: 38px; height: 38px;
+    animation: doughnutPop 0.3s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .extras-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .extra-slot {
+    width: 52px; height: 52px;
+    border: 2px dashed #e8a030;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fffbe6;
+  }
+  .extra-slot.filled {
+    border-color: #43e97b;
+    background: #e8fdf0;
+  }
+
+  /* ── Celebration ── */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confettiFall 2.5s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Fade transitions ── */
+  .fade-in { animation: fadeIn 0.5s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hidden { display: none !important; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .shop-sign { font-size: 1.6rem; }
+    .order-number { font-size: 2.6rem; }
+    .speech-bubble { font-size: 0.95rem; max-width: 220px; }
+    .doughnut { width: 40px; height: 40px; }
+    .ten-frame { grid-template-columns: repeat(5, 40px); grid-template-rows: repeat(2, 40px); }
+    .ten-frame-cell { width: 36px; height: 36px; }
+    .ten-frame-cell .mini-doughnut { width: 28px; height: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shop-scene">
+  <div class="shop-sign">Doughnut Shop</div>
+
+  <!-- Order Ticket -->
+  <div class="order-ticket">
+    <h2>Order Up!</h2>
+    <div class="order-number">14</div>
+    <div class="subtitle">doughnuts please!</div>
+  </div>
+
+  <!-- Counter -->
+  <div class="counter">
+    <div class="counter-label" id="counter-label">Doughnut Box</div>
+    <div class="tray" id="tray"></div>
+    <!-- Ten Frame embedded in box -->
+    <div class="ten-frame-section hidden" id="ten-frame-section">
+      <div class="ten-frame-label" id="tf-label">Let's use a ten-frame!</div>
+      <div class="ten-frame" id="ten-frame"></div>
+      <div class="extras-row" id="extras-row"></div>
+    </div>
+  </div>
+
+  <!-- Character + Speech -->
+  <div class="character-area">
+    <div class="character" id="character">
+      <img src="Puppet.png" alt="Puppet the giraffe">
+    </div>
+    <div class="speech-bubble" id="speech">
+      <span id="speech-text">Hi! I'm Puppet! Someone ordered <span class="emphasis">14</span> doughnuts. I can do this!</span>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="btn-row" id="btn-row">
+    <button class="btn btn-next" id="btn-next" onclick="nextStep()">Let's Watch!</button>
+  </div>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+// ── Doughnut SVG Generator ──
+const TOPPINGS = [
+  { icing: '#f8a5c2', drizzle: '#fff', sprinkles: ['#e74c3c','#f39c12','#2ecc71'] },
+  { icing: '#82ccdd', drizzle: '#fff', sprinkles: ['#e74c3c','#9b59b6','#f1c40f'] },
+  { icing: '#f7dc6f', drizzle: '#e67e22', sprinkles: ['#e74c3c','#3498db','#2ecc71'] },
+  { icing: '#bb8fce', drizzle: '#fff', sprinkles: ['#f39c12','#1abc9c','#e74c3c'] },
+];
+
+// Special single-doughnut color (bright green icing, stands out from the pink/blue/yellow group)
+const SINGLE_TOPPING = { icing: '#5cd65c', sprinkles: ['#fff','#f1c40f','#e74c3c'] };
+
+// The group-of-4 all use this color (bright pink)
+const GROUP_TOPPING = { icing: '#f8a5c2', sprinkles: ['#e74c3c','#f39c12','#2ecc71'] };
+
+function doughnutSVG(size = 52, topping = null) {
+  const t = topping || TOPPINGS[Math.floor(Math.random() * TOPPINGS.length)];
+  const sp = t.sprinkles;
+  return `<svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="26" cy="26" r="24" fill="#d4a056"/>
+    <circle cx="26" cy="26" r="22" fill="#e8b86d"/>
+    <ellipse cx="26" cy="24" rx="22" ry="18" fill="${t.icing}"/>
+    <circle cx="26" cy="26" r="8" fill="#ffecd2"/>
+    <circle cx="26" cy="26" r="6" fill="#d4a056"/>
+    <rect x="15" y="14" width="3" height="6" rx="1.5" fill="${sp[0]}" transform="rotate(-20 16 17)"/>
+    <rect x="30" y="12" width="3" height="6" rx="1.5" fill="${sp[1]}" transform="rotate(15 31 15)"/>
+    <rect x="22" y="10" width="3" height="5" rx="1.5" fill="${sp[2]}" transform="rotate(-10 23 12)"/>
+    <rect x="36" y="18" width="3" height="5" rx="1.5" fill="${sp[0]}" transform="rotate(25 37 20)"/>
+    <rect x="12" y="22" width="3" height="5" rx="1.5" fill="${sp[1]}" transform="rotate(-30 13 24)"/>
+  </svg>`;
+}
+
+// ── State Machine ──
+let step = 0;
+const tray = document.getElementById('tray');
+const speech = document.getElementById('speech-text');
+const btnNext = document.getElementById('btn-next');
+const counterLabel = document.getElementById('counter-label');
+const tenFrameSection = document.getElementById('ten-frame-section');
+const tenFrame = document.getElementById('ten-frame');
+const extrasRow = document.getElementById('extras-row');
+const character = document.getElementById('character');
+
+function clearPose() {
+  character.classList.remove('arms-up', 'sad', 'surprised', 'scratch');
+}
+function setHappy() { clearPose(); }
+function setSad() { clearPose(); character.classList.add('sad'); }
+function setSurprised() { clearPose(); character.classList.add('surprised'); }
+function setProud() { clearPose(); character.classList.add('arms-up'); }
+function resetMouth() { clearPose(); }
+function armsUp() { clearPose(); character.classList.add('arms-up'); }
+function armsNormal() { clearPose(); }
+function armsScratchHead() { clearPose(); character.classList.add('scratch'); }
+
+function addDoughnutsToTray(count, delayStart = 0, topping = null) {
+  return new Promise(resolve => {
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const d = document.createElement('div');
+        d.className = 'doughnut';
+        d.innerHTML = doughnutSVG(52, topping);
+        d.style.animationDelay = '0s';
+        tray.appendChild(d);
+        if (i === count - 1) setTimeout(resolve, 400);
+      }, delayStart + i * 250);
+    }
+  });
+}
+
+function clearTray(animate = true) {
+  return new Promise(resolve => {
+    const doughnuts = tray.querySelectorAll('.doughnut');
+    if (!animate || doughnuts.length === 0) {
+      tray.innerHTML = '';
+      resolve();
+      return;
+    }
+    doughnuts.forEach((d, i) => {
+      setTimeout(() => d.classList.add('fly-away'), i * 80);
+    });
+    setTimeout(() => { tray.innerHTML = ''; resolve(); }, doughnuts.length * 80 + 700);
+  });
+}
+
+function shakeTray() {
+  const doughnuts = tray.querySelectorAll('.doughnut');
+  doughnuts.forEach(d => {
+    d.classList.add('wrong');
+    setTimeout(() => d.classList.remove('wrong'), 600);
+  });
+}
+
+async function fillTenFrame(count, delay = 0) {
+  const cells = tenFrame.querySelectorAll('.ten-frame-cell');
+  for (let i = 0; i < count && i < 10; i++) {
+    await new Promise(r => setTimeout(r, 180));
+    cells[i].classList.add('filled');
+    const d = document.createElement('div');
+    d.className = 'mini-doughnut';
+    d.innerHTML = doughnutSVG(38);
+    cells[i].appendChild(d);
+  }
+}
+
+async function fillExtras(count) {
+  const slots = extrasRow.querySelectorAll('.extra-slot');
+  for (let i = 0; i < count && i < slots.length; i++) {
+    await new Promise(r => setTimeout(r, 200));
+    slots[i].classList.add('filled');
+    const d = document.createElement('div');
+    d.className = 'mini-doughnut';
+    d.innerHTML = doughnutSVG(38);
+    d.style.width = '40px';
+    d.style.height = '40px';
+    slots[i].appendChild(d);
+  }
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confetti');
+  const colors = ['#e74c3c','#f39c12','#2ecc71','#3498db','#9b59b6','#e84393','#00cec9'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.innerHTML = '', 4000);
+}
+
+// ── Step Sequence ──
+async function nextStep() {
+  step++;
+  btnNext.disabled = true;
+
+  switch(step) {
+    case 1: // Puppet starts filling - puts 1 doughnut (green)
+      speech.innerHTML = `Okay! 14 doughnuts. The first digit is <span class="emphasis">1</span>... so that's 1 doughnut!`;
+      setHappy();
+      armsNormal();
+      await addDoughnutsToTray(1, 0, SINGLE_TOPPING);
+      btnNext.textContent = "What's next?";
+      btnNext.disabled = false;
+      break;
+
+    case 2: // Puppet puts 4 more (pink - visually different group)
+      speech.innerHTML = `And the next digit is <span class="emphasis">4</span>... so 4 more doughnuts!`;
+      await addDoughnutsToTray(4, 200, GROUP_TOPPING);
+      btnNext.textContent = "Hmm, wait...";
+      btnNext.disabled = false;
+      break;
+
+    case 3: // Realization something is wrong
+      speech.innerHTML = `There we go! <span class="emphasis">1</span> and <span class="emphasis">4</span> makes... wait... that's only 5! That's not 14!`;
+      armsScratchHead();
+      shakeTray();
+      setTimeout(() => setSad(), 300);
+      btnNext.textContent = "Oh no! What happened?";
+      btnNext.disabled = false;
+      break;
+
+    case 4: // Explain the mistake
+      speech.innerHTML = `Oh no! I made a mistake! I thought the <span class="emphasis">1</span> in 14 meant just 1. But it really means <span class="emphasis">10</span>!`;
+      resetMouth();
+      setSurprised();
+      armsUp();
+      btnNext.textContent = "Let's fix it!";
+      btnNext.disabled = false;
+      break;
+
+    case 5: // Clear tray and introduce ten frame
+      speech.innerHTML = `Let me try again! I'll use a <span class="emphasis">ten-frame</span> to help me count!`;
+      resetMouth();
+      setHappy();
+      armsNormal();
+      await clearTray(true);
+      tray.classList.add('hidden');
+
+      // Build ten frame
+      counterLabel.textContent = "Doughnut Box (the RIGHT way!)";
+      tenFrameSection.classList.remove('hidden');
+      tenFrameSection.classList.add('fade-in');
+      tenFrame.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'ten-frame-cell';
+        tenFrame.appendChild(cell);
+      }
+      // Build extras row (4 slots)
+      extrasRow.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'extra-slot';
+        extrasRow.appendChild(slot);
+      }
+      document.getElementById('tf-label').textContent = "Let's use a ten-frame!";
+      btnNext.textContent = "Fill the ten-frame!";
+      btnNext.disabled = false;
+      break;
+
+    case 6: // Fill 10 into frame
+      speech.innerHTML = `The <span class="emphasis">1</span> in 14 means <span class="emphasis">10 ones</span>. Let's fill the whole ten-frame!`;
+      await fillTenFrame(10);
+      btnNext.textContent = "Now add the 4!";
+      btnNext.disabled = false;
+      break;
+
+    case 7: // Add 4 extras
+      speech.innerHTML = `Now the <span class="emphasis">4</span> in 14 means <span class="emphasis">4 more ones</span>!`;
+      await fillExtras(4);
+      btnNext.textContent = "We did it!";
+      btnNext.disabled = false;
+      break;
+
+    case 8: // Celebration!
+      speech.innerHTML = `YAY! <span class="emphasis">14</span> doughnuts! The <span class="emphasis">1</span> means 10 ones and the <span class="emphasis">4</span> means 4 ones!`;
+      resetMouth();
+      setProud();
+      armsUp();
+      launchConfetti();
+
+      btnNext.classList.remove('btn-next');
+      btnNext.classList.add('btn-replay');
+      btnNext.textContent = "Play Again!";
+      btnNext.disabled = false;
+      break;
+
+    default: // Replay
+      step = 0;
+      tray.innerHTML = '';
+      tray.classList.remove('hidden');
+      counterLabel.textContent = 'Doughnut Box';
+      tenFrameSection.classList.add('hidden');
+      tenFrame.innerHTML = '';
+      extrasRow.innerHTML = '';
+      resetMouth();
+      setHappy();
+      armsNormal();
+      speech.innerHTML = `Hi! I'm Puppet! Someone ordered <span class="emphasis">14</span> doughnuts. I can do this!`;
+      btnNext.className = 'btn btn-next';
+      btnNext.textContent = "Let's Watch!";
+      btnNext.disabled = false;
+      break;
+  }
+}
+</script>
+
+</body>
+</html>
